@@ -1,0 +1,156 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>小说上架</title>
+    <script src="~/style/jquery-1.10.2.js"></script>
+    <link href="~/style/BootstrapSouce/css/bootstrap.css" rel="stylesheet" />
+    <script src="~/layui.all.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" media="all" />
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    <script src="~/lay/modules/form.js"></script>
+    <script>
+        var Currentpage = 1;
+        var Totalpage = 0;
+
+        $(function () {
+            Show(Currentpage);
+            $("#btn").click(function () {
+                Show(Currentpage);
+
+            });
+
+
+
+        });
+        function Show(Currentpage) {
+
+            $.ajax({
+
+                url: "http://172.25.53.30:8050/novelAdded/novelAdded",
+                type: "get",
+                data: {
+                    pages: Currentpage,
+                    NovelName: $("#Text1").val(),
+                    IFShelf: $("#s").val(),
+                },
+                success: function (data) {
+                    Currentpage = data.Currentpage;
+                    Totalpage = data.Totalpage;
+
+
+                    $("#Currentpage").text(data.Currentpage + "/" + data.Totalpage);
+                    $("table tr").not(":first").remove();
+                    $(data.Data).each(function (index, data) {
+
+                        $("table").append("<tr><td>" + data.Id + "</td><td>" + data.NovelName + "</td><td>" + data.Author + "</td><td>" + data.Num + "</td><td> <div style='width:120px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;' >" + data.Intro + "</div></td><td>" + (data.IFShelf == 0 ? "未上架" : "已上架") + "</td><td><a style='color:#3366ff;margin-left:5px;'  href='#' onclick='State(" + data.Id + ", " + (data.IFShelf == 0 ? 1 : 0) + ")'>" + (data.IFShelf == 0 ? "上架" : "下架") + "</a></td></tr>")
+
+                    })
+                }
+            })
+        };
+        function State(Id, IFShelf) {
+            $.ajax({
+                url: "http://172.25.53.30:8050/novelAdded/Uptdateed",
+                type: "get",
+                data: {
+                    Id: Id,
+                    IFShelf: IFShelf,
+                },
+                success: function (data) {
+                    location.href = '/NovelAdded/NovelAdded'
+                }
+            })
+        }
+
+            function First() {
+                Currentpage = 1;
+                Show(Currentpage);
+            }
+            function Last() {
+                Currentpage = Totalpage;
+                Show(Currentpage);
+            }
+            function previous() {
+                if (Currentpage - 1 == 0) {
+                    layer.msg('已是第一页！');
+                    return;
+                }
+                else {
+                    Currentpage = Currentpage - 1;
+                    Show(Currentpage);
+                }
+
+            }
+            function Next() {
+                if (Currentpage + 1 > Totalpage) {
+                    layer.msg("已是最后一页");
+                    return;
+                }
+                else {
+                    Currentpage = Currentpage + 1;
+                    Show(Currentpage);
+                }
+
+            }
+    </script>
+</head>
+<body>
+    <div style="padding:30px 30px;">
+        <div>
+            <span style="font-size:18px;">书名：<input id="Text1" type="text" name="NovelName" style="height:35px;"/></span>
+            <span style="font-size:18px;">
+                上架状态： <select id="s" name="IFShelf" style="height:38px;">
+                    <option value="">--请选择--</option>
+                    <option value="0">--未上架--</option>
+                    <option value="1">--上架--</option>
+                </select>
+                <button class="layui-btn"  data-type="add" id="btn" onclick="Last()">
+                    搜索
+                </button>
+            </span>
+
+        </div>
+        <div>
+            <table class="layui-table">
+                <tr>
+                    <th>小说id</th>
+                    <th>书名</th>
+                    <th>作者</th>
+                    <th>字数</th>
+                    <th>内容</th>
+                    <th>上架状态</th>
+                    <th>编辑</th>
+                </tr>
+            </table>
+        </div>
+
+        <div style="float:right;margin-right:50px;">
+            <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="First()">
+                首页
+            </button>
+            <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="previous()">
+                上一页
+            </button>
+            当前第<span id="Currentpage" style="color:blue"></span>页
+            <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="Next()">
+                下一页
+            </button>
+            <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="Last()">
+                尾页
+            </button>
+        </div>
+
+    </div>
+   
+</body>
+</html>

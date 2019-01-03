@@ -1,0 +1,202 @@
+﻿
+
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+@inherits System.Web.Mvc.WebViewPage
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>用户管理</title>
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    <script src="~/Scripts/jquery-3.1.1.js"></script>
+    <script src="~/layui.all.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" media="all" />
+    <style>
+    </style>
+
+</head>
+
+<body layadmin-themealias="default" style="">
+    <div class="layui-card" style="height:360px;">
+        <div style="padding:30px 30px;">
+            <div>
+
+                <span class="layui-inline">
+                    <label class="">
+                        员工姓名
+                    </label>
+
+                    <span class="layui-input-inline">
+                        <input class="layui-input" type="text" placeholder="请输入员工姓名" autocomplete="off" name="ManagersName" />
+                    </span>
+                </span>
+                <span>
+                    <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="btnSearch()">
+                        搜索
+                    </button>
+                </span>
+                <span>
+                    <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="location.href='/Managerss/AddManagers'">
+                        添加员工
+                    </button>
+                </span>
+                <span>
+                    <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="location.href='/Power/Index'">
+                        权限列表
+                    </button>
+                </span>
+                <span>
+                    <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="location.href='/Role/Index'">
+                        角色列表
+                    </button>
+                </span>
+            </div>
+
+            <div>
+                <table id="tab" class="layui-table" cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                        <td style="width:100px;">用户Id</td>
+                        <td style="width:100px;">用户名</td>
+                        <td style="width:100px;">创建时间</td>
+                        <td style="width:100px;">修改时间</td>
+                        <td style="width:100px;">角色</td>
+                        <td style="width:100px;">操作</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="float:right;margin-right:20px;">
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnFirst()">
+                    首页
+                </button>
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnPrev()">
+                    上一页
+                </button>
+                当前第<span id="Currentpage" style="color:blue"></span>页
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnNext()">
+                    下一页
+                </button>
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnLast()">
+                    尾页
+                </button>
+            </div>
+
+         
+        </div>
+        <!-- footer -->
+    </div>
+    <script src="~/polyfill.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/kitadmin.js"></script>
+    <script src="~/mockjs-config.js"></script>
+    <script src="~/Content/jquery-3.3.1.js"></script>
+    @*<script src="https://cdn.bootcss.com/echarts/4.1.0.rc2/echarts.min.js"></script>
+        <script>layui.use("admin");</script>*@
+
+</body>
+
+</html>
+<script type="text/javascript">
+    //当前页
+    var currentpage = 1;
+    //总页数
+    var totalpage = 0;
+    //文档就绪函数
+    $(function () {
+        show();
+    })
+    //显示方法
+    function show() {
+        $.ajax({
+            url: "http://172.25.53.30:8050/managers/getManagers",
+            type: "get",
+            data: {
+                page: currentpage,
+                ManagersName: $("input[name=ManagersName]").val()
+            },
+            success: function (data) {
+                currentpage = data.Currentpage;
+                totalpage = data.Totalpage;
+                $("#Currentpage").text(data.Currentpage + "/" + data.Totalpage);
+                $("#tab tr").not(":first").remove();
+                $(data.Data).each(function (index, data) {
+                    var str = "<tr>";
+                    str += "<td>" + data.Id + "</td>";
+                    str += "<td>" + data.ManagersName + "</td>";
+                    str += "<td>" + data.CreateTime + "</td>";
+                    str += "<td>" + data.ModifyTime + "</td>";
+                    str += "<td>" + data.RoleName + "</td>";
+                    str += "<td><a style='color:#3366ff;margin-right:5px;' onclick='Delete(" + data.Id + ")'>删除</a>|<a style='color:#3366ff;margin-left:5px;' href='/Managerss/UpdateManagers?Id=" + data.Id + "'>修改</a></li>";
+                    str += "</tr>";
+                    $("#tab").append(str);
+
+                })
+            }
+        })
+    }
+
+    function Delete(Id) {
+        layer.confirm('确定删除吗?', { icon: 3, title: '提示' }, function (index) {
+            //do something
+            $.ajax({
+                url: "http://172.25.53.30:8050/managers/deleteManagers",
+                type: "get",
+                data: {
+                    Id: Id
+                },
+                success: function (data) {
+                    if (data > 0) {
+                        layer.msg('删除成功！', { icon: 1 });
+                        show();
+                    }
+                    else {
+                        layer.msg('删除失败！');
+                    }
+                }
+            })
+            layer.close(index);
+        });
+    }
+    //首页
+    function btnFirst() {
+        currentpage = 1;
+        show();
+    }
+    //上一页
+    function btnPrev() {
+        if (currentpage - 1 <= 0) {
+            layer.msg('已是第一页！');
+            return;
+        }
+        currentpage--;
+        show();
+    }
+    //下一页
+    function btnNext() {
+        if (currentpage + 1 > totalpage) {
+            layer.msg('已是最后一页！');
+            return;
+        }
+        currentpage++;
+        show();
+    }
+    //最后一页
+    function btnLast() {
+        currentpage = totalpage;
+        show();
+    }
+    //搜索
+    function btnSearch() {
+        show();
+    }
+
+</script>
+
+

@@ -1,0 +1,98 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AddRole</title>
+    <script src="~/Scripts/jquery-3.1.1.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+</head>
+<body>
+    <div>
+        <h1>添加角色</h1>
+        <hr />
+        <form id="form1">
+
+
+            <p>角色名称：<input type="text" name="RoleName" /></p>
+            <div class="layui-form-item">
+                <p>
+                    选择权限：
+                </p>
+                <div id="dl1" class="layui-input-block">
+
+                </div>
+            </div>
+            <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="Add()">
+                保存
+            </button>
+        </form>
+    </div>
+    <script src="~/polyfill.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/kitadmin.js"></script>
+    <script src="~/mockjs-config.js"></script>
+    <script src="~/DateControl/WdatePicker.js"></script>
+    <script src="~/Content/echarts.min.js"></script>
+</body>
+</html>
+<script>
+
+    $(function () {
+        Show();
+    })
+    /* 权限加载方法*/
+    function Show() {
+        $.ajax({
+            url: 'http://172.25.53.30:8050/power/getPower',
+            type: 'get',
+            success: function (data) {
+                var list = '<ul>';
+                $(data).each(function (index, data) {
+                    list += ''
+                        + '<li> <input type="checkbox" name="PowerName" value="' + data.Id + '">' + data.PowerName + '</li>'
+                        + ''
+                })
+                list += '</ul>'
+                $("#dl1").append(list);
+            }
+        })
+    }
+    function Add() {
+        var Ids = [];
+        $("input[name=PowerName]:checked").each(function () {
+            Ids.push($(this).val())
+        })
+        var PowerNames = [];
+        $("input[name=PowerName]:checked").each(function () {
+            PowerNames.push($(this).parent().text())
+        })
+        $.ajax({
+            url: "http://172.25.53.30:8050/role/addRole",
+            type: "post",
+            data: {
+                RoleName: $("input[name=RoleName]").val(),
+                PowerId: Ids.join(','),
+                PowerName: PowerNames.join(',')
+            },
+                //"{RoleName:'" + $("input[name=RoleName]").val() + "',PowerId:'" + Ids + "',PowerName:'" + PowerNames + "'}",
+            dataType:"json",
+            success: function (d) {
+                if (d > 0) {
+                    alert('添加成功！');
+                    $("#form1")[0].reset();
+                }
+                else {
+                    alert('添加失败！');
+                }
+            }
+        })
+    }
+</script>

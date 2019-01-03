@@ -1,0 +1,118 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AddManagers</title>
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+</head>
+<body>
+    <div class="layui-card" style="height:400px;">
+        <form id="form1" style="padding:30px 30px;">
+            <div style="font-size:20px;font-family:Arial">添加员工</div>
+            <hr />
+            <div class="layui-form-item">
+                <label class="layui-form-label"> 用户名称：</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" type="text" id="Name" style="width:200px;" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"> 用户密码：</label>
+                <div class="layui-input-block">
+                    <input class="layui-input" type="text" id="Pass" style="width:200px;" />
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label"> 选择角色：</label>
+                <div class="layui-input-block">
+                    
+                    <div id="dl1">
+
+
+                    </div>
+                </div>
+            </div>
+           
+
+            <div>
+                <input class="layui-btn" onclick="Add()" value="保存"  style="margin-left:30px;"/>
+
+
+            </div>
+        </form>
+    </div>
+    <script src="~/polyfill.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/kitadmin.js"></script>
+    <script src="~/mockjs-config.js"></script>
+    <script src="~/DateControl/WdatePicker.js"></script>
+    <script src="~/Content/echarts.min.js"></script>
+</body>
+</html>
+<script src="~/Scripts/jquery-3.1.1.js"></script>
+<script type="text/javascript">
+    $(function () {
+        Show();
+      
+    })
+    /* 权限加载方法*/
+    function Show() {
+        $.ajax({
+            url: 'http://172.25.53.30:8050/role/getRoles',
+            type: 'get',
+            success: function (data) {
+                var list = '<ul>';
+                $(data).each(function (index, data) {
+                    list += ''
+                        + '<li> <input type="checkbox" name="RoleName" value="' + data.Id + '"> <label style="margin-left:10px">  ' + data.RoleName + '</label></li>'
+                        + ''
+                })
+                list += '</ul>'
+                $("#dl1").append(list);
+            }
+        })
+    }
+    function Add() {
+
+        var Ids = [];
+        $("input[name=RoleName]:checked").each(function () {
+            Ids.push($(this).val())
+        })
+        var RoleName = [];
+        $("input[name=RoleName]:checked").each(function () {
+            RoleName.push($(this).parent().text())
+        })
+        $.ajax({
+            url: "http://172.25.53.30:8050/managers/addManagers",
+            type: "post",
+            data: {
+                ManagersName: $("#Name").val(),
+                ManagersPsw: $("#Pass").val(),
+                RoleId: Ids.join(','),
+                RoleName: RoleName.join(',')
+            },
+            dataType: "json",
+            success: function (d) {
+                console.log(d);
+                if (d > 0) {
+
+                    alert('添加成功！');
+                    $("#Name").val("");
+                    $("#Pass").val("");
+                }
+                else {
+                    alert('添加失败！');
+                }
+            }
+        })
+    }
+</script>

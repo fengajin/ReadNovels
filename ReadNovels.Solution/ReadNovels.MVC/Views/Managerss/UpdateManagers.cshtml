@@ -1,0 +1,146 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>UpdateManagers</title>
+    <script src="~/Scripts/jquery-3.1.1.js"></script>
+    <script src="~/layui.all.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" media="all" />
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    <script src="~/lay/modules/form.js"></script>
+</head>
+<body>
+    <div>
+        <h2>用户详细信息</h2>
+        <hr />
+        <div class="div-search layui-form layui-form-pane" action="" id="formSeach" style="height:40px;">
+            <div class="layui-form-item" pane style="height:37px;">
+                <label class="layui-form-label">用户名称：</label>
+                <div class="layui-inline left-input" style="width:150px;float:left;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="ManagersName" placeholder="请输入用户名称" autocomplete="off" class="layui-input left-input">
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item" pane style="height:37px;" id="psw" hidden="hidden">
+                <label class="layui-form-label">新密码：</label>
+                <div class="layui-inline left-input" style="width:150px;float:left;">
+                    <div class="layui-input-inline">
+                        <input type="password" name="ManagersPsw" placeholder="请输入新密码" autocomplete="off" class="layui-input left-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*<p>用户名称：<input type="text" name="ManagersName" readonly="readonly" /></p>
+            <p id="psw" hidden="hidden">新密码：<input type="text" name="ManagersPsw" /></p>*@
+        <div class="layui-form-item">
+            <p>
+                选择角色：
+            </p>
+            <div id="dl1" class="layui-input-block">
+
+            </div>
+        </div>
+        <div>
+            <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="Add()">
+                保存
+            </button>
+            <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="update()">
+                修改密码
+            </button>
+        </div>
+    </div>
+    <script src="~/polyfill.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/kitadmin.js"></script>
+    <script src="~/mockjs-config.js"></script>
+    <script src="~/DateControl/WdatePicker.js"></script>
+    <script src="~/Content/echarts.min.js"></script>
+</body>
+</html>
+<script>
+
+    $(function () {
+        Show();
+        GetPowerById();
+    })
+    /* 权限加载方法*/
+    function Show() {
+        $.ajax({
+            url: 'http://172.25.53.30:8050/role/getRoles',
+            type: 'get',
+            success: function (data) {
+                var list = '<ul>';
+                $(data).each(function (index, data) {
+                    list += ''
+                        + '<li> <input type="checkbox" name="RoleName" disabled="disabled" value="' + data.Id + '">' + data.RoleName + '</li>'
+                        + ''
+                })
+                list += '</ul>'
+                $("#dl1").append(list);
+            }
+        })
+    }
+
+    function Add() {
+        var Ids = [];
+        $("input[name=RoleName]:checked").each(function () {
+            Ids.push($(this).val())
+        })
+        var RoleName = [];
+        $("input[name=RoleName]:checked").each(function () {
+            RoleName.push($(this).parent().text())
+        })
+        $.ajax({
+            url: "http://172.25.53.30:8050/managers/updateManagers",
+            type: "post",
+            data: {
+                Id:"@Request.QueryString["Id"]",
+                ManagersName: $("input[name=ManagersName]").val(),
+                ManagersPsw: $("input[name=ManagersPsw]").val(),
+                RoleId: Ids.join(','),
+                RoleName: RoleName.join(',')
+            },
+            //"{RoleName:'" + $("input[name=RoleName]").val() + "',PowerId:'" + Ids + "',PowerName:'" + PowerNames + "'}",
+            dataType: "json",
+            success: function (d) {
+                if (d > 0) {
+                    alert("修改成功！");
+                }
+                else {
+                    alert("修改失败！");
+                }
+            }
+        })
+    }
+
+function GetPowerById() {
+            $.ajax({
+                url: "http://172.25.53.30:8050/managers/getManagersById",
+                type: "get",
+                data: {
+                    Id:"@Request.QueryString["Id"]"
+                },
+                success: function (data) {
+                    $("input[name=ManagersName]").val(data[0].ManagersName);
+                    var RolesIds = data[0].RoleId;
+                    var attr = RolesIds.split(",");
+                    $(attr).each(function (index,data) {
+                        $("[value=" + this + "]").prop("checked","checked");
+                    })
+                }
+            })
+    }
+    function update() {
+        $("#psw").prop("hidden", false);
+    }
+</script>

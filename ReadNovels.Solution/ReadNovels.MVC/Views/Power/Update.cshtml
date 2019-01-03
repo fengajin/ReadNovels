@@ -1,0 +1,118 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Update</title>
+    <script src="~/Scripts/jquery-3.1.1.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    <script src="~/lay/modules/form.js"></script>
+    <script>
+        $(function () {
+            GetPowerById();
+        })
+        function GetPowerById() {
+            $.ajax({
+                url: "http://172.25.53.30:8050/power/getPowersById",
+                type: "get",
+                data: {
+                    Id:"@Request.QueryString["Id"]"
+                },
+                success: function (data) {
+                    $("input[name=PowerName]").val(data[0].PowerName);
+                    $("input[name=Url]").val(data[0].Url);
+                    $("input[name=IsSelf][value=" + data[0].IsSelf + "]").attr("checked", "checked");
+                }
+            })
+        }
+        function Add() {
+            $.ajax({
+                url: "http://172.25.53.30:8050/power/updatePowers",
+                type: "post",
+                data: $("#form1").serialize(),
+                success: function (data) {
+                    if (data > 0) {
+                        layer.msg('修改成功！', { icon: 1 });
+                    }
+                    else {
+                        layer.msg('修改失败！');
+                    }
+                }
+            })
+        }
+
+        //layui-form 执行修饰
+        layui.use('form', function () {
+            var form = layui.form; //只有执行了这一步，部分表单元素才会自动修饰成功
+            //但是，如果你的HTML是动态生成的，自动渲染就会失效
+            //因此你需要在相应的地方，执行下述方法来手动渲染，跟这类似的还有 element.init();
+            form.render();
+        });
+    </script>
+</head>
+<body>
+    <div>
+        <div id="form1">
+                <input type="hidden" name="Id" value="@Request.QueryString["Id"]" />
+            <div class="div-search layui-form layui-form-pane" action="" id="formSeach" style="height:100px;">
+                <div class="layui-form-item" pane style="height:37px;">
+                    <label class="layui-form-label">权限名称：</label>
+                    <div class="layui-inline left-input" style="width:150px;float:left;">
+                        <div class="layui-input-inline">
+                            <input type="text" name="PowerName" placeholder="请输入权限名称" autocomplete="off" class="layui-input left-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item" pane style="height:37px;">
+                    <label class="layui-form-label">Url：</label>
+                    <div class="layui-inline left-input" style="width:150px;float:left;">
+                        <div class="layui-input-inline">
+                            <input type="text" name="Url" placeholder="请输入权限Url" autocomplete="off" class="layui-input left-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="width:300px;height:300px;">
+                <div style="height:40px;margin-left:10px;">
+                    <span style="margin-right:40px;">是否启用:</span>
+                    <input type="radio" name="IsSelf" value="1" />启用<input type="radio" name="IsSelf" value="0" />禁用
+                </div>
+                <div style="margin-left:10px;">
+                    <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="Add()">
+                        保存
+                    </button>
+                </div>
+            </div>
+        </div>
+        @*<form id="form1">
+            <div>
+                权限名称:<input type="text" name="PowerName" />
+            </div>
+            <div>
+                Url:<input type="text" name="Url" />
+            </div>
+            <div>
+                是否启用:<input type="radio" name="IsSelf" value="1" />启用<input type="radio" name="IsSelf" value="0" />禁用
+            </div>
+            <div>
+                <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="Add()">
+                    保存
+                </button>
+            </div>
+        </form>*@
+    </div>
+    <script src="~/polyfill.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/kitadmin.js"></script>
+    <script src="~/mockjs-config.js"></script>
+    <script src="~/DateControl/WdatePicker.js"></script>
+    <script src="~/Content/echarts.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>小说后台审核</title>
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    <style>
+      
+    </style>
+</head>
+<body>
+    <div>
+        <div>
+            <div>
+                <div>
+                    <span>书名:</span>
+                    <span><input type="text" name="NovelName" /></span>
+
+                    <span>审核状态:</span>
+                    <span>
+                        <select name="Isverify">
+                            <option value="1">已审核</option>
+                            <option value="0">未审核</option>
+                        </select>
+                    </span>
+                    <span><input type="button" value="搜索" onclick="btnSearch()" class="layui-btn layui-btn-sm" /></span>
+
+                    
+                    <input type="button" value="全部审核" onclick="btnAllAudit()" class="layui-btn layui-btn-sm" />
+                </div>
+                <div>
+                    <table id="tab" class="layui-table" lay-size="sm">
+                        <colgroup>
+                            <col width="10">
+                            <col width="20">
+                            <col width="50">
+                            <col width="40">
+                            <col width="50">
+                            <col width="30">
+                            <col width="50">
+                            <col width="40">
+                            <col width="50">
+                            <col width="40">
+                            <col width="50">
+                            <col width="40">
+                        </colgroup>
+                        <tr>
+                            <td><input type="checkbox" name="checkboxbutton" value="all" id="checkboxall" >全/反选</td>
+                            <td>小说名称</td>
+                            <td>小说作者</td>
+                            <td>小说字数</td>
+                            <td>小说路径</td>
+                            <td>小说封面路径</td>
+                            <td>是否开始抓取</td>
+                            <td>是否启用</td>
+                            <td>简介</td>
+                            <td>小说状态</td>
+                            <td>小说类别</td>
+                            <td>审核状态</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div style="float:right;margin-right:20px;">
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnFirst()">
+                    首页
+                </button>
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnPrev()">
+                    上一页
+                </button>
+                当前第<span id="Currentpage" style="color:blue"></span>页
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnNext()">
+                    下一页
+                </button>
+                <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnLast()">
+                    尾页
+                </button>
+            </div>
+        </div>
+
+        <router-view></router-view>
+    </div>
+
+    <script src="~/polyfill.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/kitadmin.js"></script>
+    <script src="~/mockjs-config.js"></script>
+    <script src="~/Content/jquery-3.3.1.js"></script>
+    @*<script src="https://cdn.bootcss.com/echarts/4.1.0.rc2/echarts.min.js"></script>
+        <script>layui.use("admin");</script>*@
+    <script src="~/layui.all.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" media="all" />
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    <script src="~/lay/modules/form.js"></script>
+
+</body>
+
+</html>
+<script type="text/javascript">
+    //当前页
+    var currentpage = 1;
+    //总页数
+    var totalpage = 0;
+
+    $(function () {
+        show();
+        $("#checkboxall").click(function () {
+            $("input[name=check]").prop("checked", $("#checkboxall").prop('checked'));
+        })
+    })
+
+    function show() {
+        $.ajax({
+            url: "http://172.25.53.30:8050/novelAudit/getCaptures",
+            type: "get",
+            data: {
+                page: currentpage,
+                NovelName: $("input[name=NovelName]").val(),
+                Isverify: parseInt($("select[name=Isverify]").val())
+            },
+            success: function (data) {
+                currentpage = data.Currentpage;
+                totalpage = data.Totalpage;
+                $("#Currentpage").text(data.Currentpage + "/" + data.Totalpage);
+                $("table tr").not(":first").remove();
+                $(data.Data).each(function (index, data) {
+                    $("#tab").append("<tr><td><input type='checkbox' name='check' value=" + data.Id + " /></td><td class='description'>" + data.NovelName + "</td><td class='description'>" + data.Author + "</td><td class='description'>" + data.Nums + "</td><td class='description'>" + data.Path + "</td><td class='description'>" + data.ImgPath + "</td><td class='description'>" + (data.ISCapture == 0 ? "未抓取" : "已抓取") + "</td><td class='description'>" + (data.ISEnabled == 0 ? "未启用" : "已启用") + "</td><td class='description'>" + data.Intro + "</td><td class='description'>" + (data.NoveState == 0 ? "已完结" : "连载中") + "</td><td class='description'>" + data.Typed + "</td><td><input style='background-color:#009999;color:white;padding:5px 7px' type='button'  value=" + (data.Isverify == 0 ? "审核" : "已审核") + " onclick='btnAudit(" + data.Id + ")' /></td></tr>")
+                })
+                wordlimit('description', 15)
+            }
+        })
+    }
+    //多余显示省略号
+    function wordlimit(cname, wordlength) {
+        var cname = document.getElementsByClassName(cname);
+        for (var i = 0; i < cname.length; i++) {
+            var nowLength = cname[i].innerHTML.length;
+            if (nowLength > wordlength) {
+                cname[i].innerHTML = cname[i].innerHTML.substr(0, wordlength) + '...';
+            }
+        }
+    };
+
+    //全选 反选
+    window.onload = function () {
+        //先获得控制全选反选的input标签
+        var inputAll = document.getElementById("theadInp");
+        //获得tbody
+        var tbody = document.getElementById("tbody");
+        //获得天tbody里面的子元素
+        var icheck = tbody.getElementsByTagName("input");
+        console.log(icheck);
+        //给控制全选反选的input标签绑定事件
+        inputAll.onclick = function () {
+            //遍历tbody里面的input标签，把inputAll的状态赋值给icheck
+            for (var i = 0; i < icheck.length; i++) {
+                icheck[i].checked = this.checked;
+            }
+        }
+    }
+
+    for (var i = 0; i < icheck.length; i++) {
+        //给每个子元素都绑定事件
+        icheck[i].onclick = function () {
+            //点击的时候在遍历icheck，看看是否有没选中的
+            for (var j = 0; j < icheck.length; j++) {
+                //定义一个标志来记录
+                var flag = true;
+                if (icheck[j].checked == false) {
+                    flag = false;
+                }
+            }
+            inputAll.checked = flag;
+        }
+    }
+
+    $(function () {
+        //实现全选反选
+        $("#theadInp").on('click', function () {
+            $("tbody input:checkbox").prop("checked", $("#theadInp").prop('checked'));
+        })
+        $("tbody input:checkbox").on('click', function () {
+            //当选中的长度等于checkbox的长度的时候,就让控制全选反选的checkbox设置为选中,否则就为未选中
+            if ($("tbody input:checkbox").length === $("tbody input:checked").length) {
+                $("#theadInp").prop("checked", true);
+            } else {
+                $("#theadInp").prop("checked", false);
+            }
+        })
+    })
+
+
+    //首页
+    function btnFirst() {
+        currentpage = 1;
+        show();
+    }
+    //上一页
+    function btnPrev() {
+        if (currentpage - 1 <= 0) {
+            layer.msg('这已是第一页！');
+            return;
+        }
+        currentpage--;
+        show();
+    }
+    //下一页
+    function btnNext() {
+        if (currentpage + 1 > totalpage) {
+            layer.msg('这已是最后一页！');
+            return;
+        }
+        currentpage++;
+        show();
+    }
+    //最后一页
+    function btnLast() {
+        currentpage = totalpage;
+        show();
+    }
+
+    function btnSearch() {
+        show();
+    }
+
+    function btnAudit(id) {
+        $.ajax({
+            url: "http://172.25.53.30:8050/novelAudit/auditNovel",
+            type: "get",
+            data: {
+                ids: id
+            },
+            success: function (data) {
+                if (data > 0) {
+                    show();
+                }
+            }
+        })
+    }
+
+
+    function btnAll() {
+        $("input[name='check']").each(function () {
+            $(this).attr("checked", "");
+        });
+    }
+
+    function btnAllAudit(id) {
+        var arr = new Array();
+        $("#tab :checkbox:checked").each(function (i) {
+            arr[i] = $(this).val();
+            //i++;
+        });
+        var vals = arr.join(",");
+        $.ajax({
+            url: "http://172.25.53.30:8032/novelAudit/auditNovel",
+            type: "get",
+            data: {
+                ids: vals
+            },
+            success: function (data) {
+                //if (data > 0) {
+                //    $.ajax({
+                //        url: "http://localhost:8032/Update",
+                //        type: "post",
+                //        success: function (data) {
+                //            if (data > 0) {
+
+                //            }
+                //        }
+                //    })
+                //}
+                if (data > 0) {
+
+                    show();
+                }
+
+            }
+        })
+    }
+
+
+</script>

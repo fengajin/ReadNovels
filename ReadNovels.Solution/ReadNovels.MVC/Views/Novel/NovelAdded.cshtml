@@ -1,0 +1,120 @@
+﻿
+@*@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>小说上架</title>
+    <script src="~/style/jquery-1.10.2.js"></script>
+    <link href="~/style/BootstrapSouce/css/bootstrap.css" rel="stylesheet" />
+    <script>
+        var Currentpage = 1;
+        var Totalpage = 0;
+        
+        $(function () {
+            Show(Currentpage);
+            $("#btn").click(function () {
+                Show(Currentpage);
+            });
+            $("#btn1").click(function () {
+                Show(Currentpage);
+            });
+            //$("#search").change(function () {
+
+            //})
+        });
+        function Show(Currentpage) {
+            
+            $.ajax({
+                
+                url: "http://localhost:3975/NovelsAdded",
+                type: "get",
+                data: {
+                    pages: Currentpage,
+                    NovelName: $("#Text1").val(),
+                    IFShelf: $("#s").val(),
+                },
+                success: function (data) {
+                    Currentpage = data.Currentpage;
+                    Totalpage = data.Totalpage;
+                   
+                    
+                    $("#Currentpage").text(data.Currentpage + "/" + data.Totalpage);
+                    $("table tr").not(":first").remove();
+                    $(data.Data).each(function (index, data) {
+                       
+                            $("table").append("<tr><td>" + data.NovelName + "</td><td>" + data.Author + "</td><td>" + data.Num + "</td><td> <div style='width:120px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;' >" + data.Intro + "</div></td><td>" + (data.IFShelf == 0 ? "上架" : "下架") + "</td><td><a href='#' onclick=''>上架</a></td></tr>")
+                                                                                          
+                    })
+                }
+            })
+        };
+        //function State(id) {
+        //    $.ajax({
+        //        url: "",
+        //        data: {
+
+        //        }
+        //    })
+        //}
+        function First() {
+            Currentpage = 1;
+            Show(Currentpage);
+        }
+        function Last() {
+            Currentpage = Totalpage;
+            Show(Currentpage);
+        }
+        function previous() {
+            if (Currentpage - 1 == 0) {
+                alert("已是第一页");
+            }
+            else {
+                Currentpage = Currentpage - 1;
+                Show(Currentpage);
+            }
+           
+        }
+        function Next() {
+            if (Currentpage + 1 > Totalpage) {
+                alert("已是最后一页");
+            }
+            else {
+                Currentpage = Currentpage + 1;
+                Show(Currentpage);
+            }
+            
+        }
+    </script>
+</head>
+<body>
+    <div>书名：<input id="Text1" type="text" name="NovelName"/> <input id="btn" type="button" value="搜索" /></div>
+    <div>上架状态： <select id="s" name="IFShelf">
+    <option value="">--请选择--</option>
+    <option value="0">--上架--</option>
+    <option value="1">--下架--</option>
+</select>
+                    <input id="btn1" type="button" value="搜索" /></div>
+    <table class="table table-bordered table-hover">
+        <tr>
+            <th>书名</th>
+            <th>作者</th>
+            <th>字数</th>
+            <th>内容</th>
+            <th>审核状态</th>
+            <th>编辑</th>
+        </tr>
+    </table>
+    <div>
+        <a href="#" onclick="First()">首页</a>
+        <a href="#" onclick="previous()">上一页</a>
+        当前第<span id="Currentpage" style="color:blue"></span>页
+        <a href="#" onclick="Next()">下一页</a>
+        <a href="#" onclick="Last()">尾页</a>
+    </div>
+</body>
+</html>*@

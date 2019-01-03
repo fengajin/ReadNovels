@@ -1,0 +1,359 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>掌阅浩瀚-小说抓取</title>
+    <script src="~/Content/jquery-3.3.1.js"></script>
+    <script src="~/layui.all.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" media="all" />
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    <script src="~/lay/modules/form.js"></script>
+    <style>
+        #divcoat{
+            width:90%;
+        }
+        #divcentre {
+            margin-top: 5%;
+            margin-left: 5%;
+        }
+    </style>
+</head>
+<body>
+    <div id="divcoat" class="layui-card" style="height:700px;padding:10px 10px;">
+        <div id="divcentre">
+            <div action="/" class="layui-form layui-form-pane" method="post" style="margin-left:-30px;">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="layui-form-item" style="width:450px;float:left;">
+                                <label class="layui-form-label" style="margin-left:-26px;">详情Url</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="getParticularsUrl" style="margin-left:-26px;" required lay-verify="required" placeholder="输入抓取小说详情地址" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="layui-form-item" style="width:450px;float:left;margin-left:10px;">
+                                <label class="layui-form-label">内容Url</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="getContentUrl" required lay-verify="required" placeholder="输入抓取小说内容地址" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="layui-form-item" style="width:300px;margin-left:-100px;">
+                                <div class="layui-input-block">
+                                    <input type="button" class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" onclick="btnState()" value="立即提交" id="btn" style="" />
+                                    <input type="button" class="layui-btn layui-btn-sm layui-btn-primary" value="重置" onclick="reset()" style="margin-right:15px;" />
+                                </div>
+
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+            <div class="div-search layui-form layui-form-pane" action="" id="formSeach" style="height:40px;">
+                <div class="layui-form-item" pane style="height:37px;">
+                    <label class="layui-form-label">小说查询：</label>
+                    <div class="layui-inline left-input" style="width:150px;float:left;">
+                        <div class="layui-input-inline">
+                            <input type="text" name="NovelName" placeholder="请输入小说名称" autocomplete="off" class="layui-input left-input">
+                        </div>
+                    </div>
+                    <div lay-filter="business" class="layui-input-inline" style="width:130px;float:left;">
+                        <select name="Typed" style="width:100px;" id="typed">
+                            <option value="0" disabled>小说类别</option>
+                            <option value="全部" selected>全部</option>
+                            <option value="玄幻奇幻">玄幻奇幻</option>
+                            <option value="女频频道">女频频道</option>
+                            <option value="武侠仙侠">武侠仙侠</option>
+                            <option value="都市言情">都市言情</option>
+                            <option value="历史军事">历史军事</option>
+                            <option value="网游竞技">网游竞技</option>
+                            <option value="科幻灵异">科幻灵异</option>
+                            <option value="恐怖灵异">恐怖灵异</option>
+                            <option value="其他小说">其他小说</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-block" style="float:left;margin-top:3px;">
+                        <input style="margin-left:-110px;" type="button" class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" value="查询" id="btn-sreach" onclick="btnSreach()" />
+                    </div>
+                    <div id="divCount" style="float:right;margin-right:100px;margin-top:8px;color:#666666;">
+                        现共有：
+                        <span id="spanCount" class="layui-badge layui-bg-orange span-Count"></span>
+                        本书
+                    </div>
+                </div>
+            </div>
+
+        <!--<div class="layui-form-item checked-switch"><div class="layui-input-block checked-switch" style="width:35px;height:20px;padding:0px;margin:0px;"><input type="checkbox" name="zzz" class="checked-switch" lay-skin="switch" lay-text="开|关"></div></div>-->
+
+        <div class="div-search layui-form layui-form-pane" action="" id="formShow">
+            <div id="divtable">
+                <table class="layui-table" lay-size="sm">
+                    <colgroup>
+                        <col width="150">
+                        <col width="100">
+                        <col width="100">
+                        <col width="100">
+                        <col width="150">
+                        <col width="150">
+                        <col width="150">
+                        <col width="100">
+                        <col width="70">
+                        <col width="60">
+                        <col width="70">
+                        <col>
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>小说名称</th>
+                            <th>小说作者</th>
+                            <th>小说字数</th>
+                            <th>小说类别</th>
+                            <th>小说URL</th>
+                            <th>内容URL</th>
+                            <th>内容简介</th>
+                            <th>加入时间</th>
+                            <th>小说状态(连载/完结)</th>
+                            @*<th>是否启用(自动抓取)</th>*@
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodytr"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="float:right;margin-right:20px;">
+            <button  class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo"  data-type="add" onclick="First()">
+                首页
+            </button>
+            <button  class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo"  data-type="add" onclick="previous()">
+                上一页
+            </button>
+            <span style="color:#666666" class="layui-badge-rim">当前第<span id="Currentpage" style="color:blue"></span>页</span>&nbsp;&nbsp;&nbsp;&nbsp;
+            <button  class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo"  data-type="add" onclick="Next()">
+                下一页
+            </button>
+            <button  class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo"  data-type="add" onclick="Last()">
+                尾页
+            </button>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    //分页全局变量
+    var Currentpage = 1;
+    var Totalpage = 0;
+
+    //文档就绪函数
+    $(function () {
+        show(Currentpage);//显示
+        getCount();//统计小说总量
+    })
+    
+    //显示
+    function show(Currentpage) {
+        $.ajax({
+            url: 'http://172.25.53.30:8050/captureUpdate/getCaptureByMore',
+            type: 'get',
+            data: {
+                pages: Currentpage,
+                NovelName: $("[name=NovelName]").val(),
+                Typed: $("[name=Typed]").val()
+            },
+            success: function (datas) {
+                console.log(datas.Data.length);
+                Currentpage = datas.Currentpage;
+                Totalpage = datas.Totalpage;
+                $("#Currentpage").text(datas.Currentpage + "/" + datas.Totalpage);
+
+                $("#tbodytr").html("");
+                console.log(datas.length);
+                for (var i = 0; i < datas.Data.length; i++) {
+                    console.log(i);
+                    var graburl, websiteURL, intro;
+                    graburl = datas.Data[i].Graburl;
+                    var tmpUrl = encodeURI(graburl);
+                    var graburl1 = graburl.substring(0, 15);
+                    graburl1 += "...";
+                    websiteURL = datas.Data[i].WebsiteURL;
+                    var tmpUrl2 = encodeURI(websiteURL);
+                    var websiteURL1 = websiteURL.substring(0, 15);
+                    websiteURL1 += "...";
+                    intro = datas.Data[i].Intro;
+                    if (intro != null) {
+                        var intro1 = intro.substring(0, 15);
+                    }
+                    intro1 += "...";
+                    var tbodytr = '<tr>'
+                        + '<td> ' + datas.Data[i].NovelName + ' </td>'
+                        + '<td> ' + datas.Data[i].Author + ' </td>'
+                        + '<td> ' + datas.Data[i].Nums + ' </td>'
+                        + '<td> ' + datas.Data[i].Typed + ' </td>'
+                        + '<td>' + graburl1 + '</td>'
+                        + '<td>' + websiteURL1 + '</td>'
+                        + '<td>' + intro1 + '</td>'
+                        + '<td>' + datas.Data[i].CreateCapture + '</td>'
+                        + '<td>' + (datas.Data[i].NoveState == 1 ? "连载中" : "完本") + '</td>'
+                        + '<td><input type="button" class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" value="更新" id="' + datas.Data[i].Id + '" onclick=\"updateNovel(\'' + tmpUrl + '\',\'' + tmpUrl2 + '\')\" /></td>'
+                        + '</tr>';
+                    //0完本添加[更新]按钮禁用属性
+                    datas.Data[i].NoveState == 1 ? $("#" + datas.Data[i].Id).removeClass('layui-btn-disabled').removeAttr('disabled', "true") : $("#" + datas.Data[i].Id).addClass('layui-btn-disabled').attr('disabled', "true");
+                    $("#tbodytr").append(tbodytr);//增加一行td
+                }
+            }
+        })
+    }
+
+    //查询
+    function btnSreach() {
+        show(Currentpage);//查询
+    }
+    
+    //统计小说总量
+    function getCount() {
+        $.ajax({
+            url: 'http://172.25.53.30:8050/captureUpdate/getCaptureCount',
+            type: 'get',
+            success: function (data) {
+                $("#spanCount").html("");
+                $("#spanCount").html(data);
+            }
+        })
+    }
+
+    //开始抓取小说
+    function btnState() {
+        //地址非空
+        if ($("[name=getParticularsUrl]").val() == "") {
+            layer.msg('请输入抓取小说详情地址');
+            return;
+        }
+        if ($("[name=getContentUrl]").val() == "") {
+            layer.msg('输入抓取小说内容地址');
+            return;
+        }
+        //禁止按钮
+        $('#btn').addClass('layui-btn-disabled').attr('disabled', "true");
+        $("#novel").html("");
+        $("#novel").html("抓取中... ");
+        $.ajax({
+            url: 'http://172.25.53.30:8050/grabNovel/grabnovel?getParticularsUrl=' + $("[name=getParticularsUrl]").val() + '&getContentUrl=' + $("[name=getContentUrl]").val(),
+            type: 'post',
+            success: function (data) {
+                console.log(data);
+                if (data == 1) {
+                    //成功后解除禁用功能
+                    $('#btn').removeClass('layui-btn-disabled').removeAttr('disabled', "true");
+                    show(Currentpage);//查询
+                    $("#novel").html("");
+                    $("#novel").html("抓取成功！");
+                    layer.msg('抓取成功！');
+                }
+                if (data == 0) {
+                    //成功后解除禁用功能
+                    $('#btn').removeClass('layui-btn-disabled').removeAttr('disabled', "true");
+                    show(Currentpage);//查询
+                    $("#novel").html("");
+                    $("#novel").html("抓取失败！");
+                    layer.msg('抓取失败！');
+                }
+                if (data >= 2) {
+                    //成功后解除禁用功能
+                    $('#btn').removeClass('layui-btn-disabled').removeAttr('disabled', "true");
+                    show(Currentpage);//查询
+                    $("#novel").html("");
+                    $("#novel").html("<p style='color: red;'>抓取小说已存在！</p>");
+                    layer.msg('抓取小说已存在！');
+                }
+            }
+        })
+    }
+
+    //重置
+    function reset() {
+        $("[name=getParticularsUrl]").val("");
+        $("[name=getContentUrl]").val("");
+        //成功后解除禁用功能
+        $('#btn').removeClass('layui-btn-disabled').removeAttr('disabled', "true");
+        $("#novel").html("");
+        layer.msg('重置成功！');
+    }
+
+    //更新
+    function updateNovel(Graburl, WebsiteURL) {
+        //禁止按钮
+        $('#btn').addClass('layui-btn-disabled').attr('disabled', "true");
+        $.ajax({
+            url: 'http://172.25.53.30:8050/grabNovel/grabnovel?getParticularsUrl=' + Graburl + '&getContentUrl=' + WebsiteURL,
+            type: 'post',
+            success: function (data) {
+                console.log(data);
+                if (data == 1) {
+                    //成功后解除禁用功能
+                    $('#btn').removeClass('layui-btn-disabled').removeAttr('disabled', "true");
+                    show(Currentpage);//查询
+                    layer.msg('更新成功！');
+                }
+                if (data == 0) {
+                    //成功后解除禁用功能
+                    $('#btn').removeClass('layui-btn-disabled').removeAttr('disabled', "true");
+                    show(Currentpage);//查询
+                    layer.msg('无更新！');
+                }
+            }
+        })
+    }
+
+    //分页
+    //首页
+    function First() {
+        Currentpage = 1;
+        show(Currentpage);
+    }
+    //尾页
+    function Last() {
+        Currentpage = Totalpage;
+        show(Currentpage);
+    }
+    //上一页
+    function previous() {
+        if (Currentpage - 1 == 0) {
+            layer.msg('已是第一页！');
+            return;
+        }
+        Currentpage = Currentpage - 1;
+        show(Currentpage);
+    }
+    //下一页
+    function Next() {
+        if (Currentpage + 1 > Totalpage) {
+            layer.msg('已是最后一页！');
+            return;
+        }
+        Currentpage = Currentpage + 1;
+        show(Currentpage);
+    }
+
+    //layui-form 执行修饰
+    layui.use('form', function () {
+        var form = layui.form; //只有执行了这一步，部分表单元素才会自动修饰成功
+        //但是，如果你的HTML是动态生成的，自动渲染就会失效
+        //因此你需要在相应的地方，执行下述方法来手动渲染，跟这类似的还有 element.init();
+        form.render();
+    });
+    
+</script>

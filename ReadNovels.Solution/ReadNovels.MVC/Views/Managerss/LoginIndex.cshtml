@@ -1,0 +1,107 @@
+﻿@{
+        Layout = null;
+    }
+
+    <!DOCTYPE html>
+    @inherits System.Web.Mvc.WebViewPage
+    <html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <title></title>
+        <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+        <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+        <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    </head>
+
+    <body class="layui-layout-body kit-theme-default">
+        <div class="layui-layout layui-layout-admin">
+            <!-- header -->
+            <div class="layui-header">
+                <div class="layui-logo">
+                    <div class="layui-logo-toggle" kit-toggle="side" data-toggle="on">
+                        <i class="layui-icon">&#xe65a;</i>
+                    </div>
+                    <div class="layui-logo-brand">
+                        <a href="#/">掌读浩瀚公司</a>
+                    </div>
+                </div>
+                <div class="layui-layout-left">
+                </div>
+                <div class="layui-layout-right">
+                    <ul class="kit-nav" lay-filter="header_right">
+
+                        <li class="kit-item">
+                            <a href='/Managerss/UpdateManagers?Id=@ViewBag.Id' target='BodyContent'>
+                                <span>
+                                    <img src="http://m.zhengjinfan.cn/images/0.jpg" class="layui-nav-img">@ViewBag.MenagerName
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+
+            </div>
+            <!-- silds -->
+            <div class="layui-side" kit-side="true">
+                <div class="layui-side-scroll">
+                    <div id="menu-box">
+
+
+                    </div>
+                </div>
+            </div>
+            <!-- main -->
+            <div class="layui-body" kit-body="true">
+                <div style="padding: 20px; background-color: #F2F2F2;">
+                    <div>
+                    </div>
+                    <iframe name="BodyContent" class="" style="height:600px"></iframe>
+                </div>
+                <!-- footer -->
+                <div class="layui-footer" kit-footer="true">
+                    2018 © zzwzf.cn
+                    <div style="width:400px; height:400px;" class="load-container load1">
+                        <div class="loader">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="~/polyfill.min.js"></script>
+        <script src="~/layui.js"></script>
+        <script src="~/kitadmin.js"></script>
+        <script src="~/mockjs-config.js"></script>
+        <script src="~/DateControl/WdatePicker.js"></script>
+        <script src="~/Content/echarts.min.js"></script>
+        <script src="~/Content/jquery-3.3.1.js"></script>
+        @*session.setMaxInactiveInterval(900);*@
+@*<script src="https://cdn.bootcss.com/echarts/4.1.0.rc2/echarts.min.js"></script>
+    <script>layui.use("admin");</script>*@
+<script type="text/javascript">
+        $(function () {
+            Load();
+        })
+        function Load() {
+            $.ajax({
+                url: "/Managerss/GetPowerList",
+                data: {
+                    id:@Request.QueryString["id"].ToString(),
+                },
+                dataType:"json",
+                success: function (data) {
+                    $(data).each(function (index, data) {
+                        $("#menu-box").append("<ul class='kit-menu'><li class= 'kit-menu-item layui-show'><a href='" + data.Url +"' target='BodyContent'><i class='layui-icon'></i><span>"+data.PowerName+"</span></a></li></ul>");
+                    })
+                }
+
+            })
+        }
+
+</script>
+
+</body>
+
+</html>
+

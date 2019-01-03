@@ -1,0 +1,96 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>AddPower</title>
+    <script src="~/Scripts/jquery-3.1.1.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    <script src="~/lay/modules/form.js"></script>
+    <script>
+        $(function () {
+
+        })
+        function Add() {
+            $.ajax({
+                url: "http://172.25.53.30:8050/power/addPowers",
+                type: "post",
+                data: $("#form1").serialize(),
+                success: function (data) {
+
+                    if (data > 0) {
+                        layer.msg('添加成功！', { icon: 1 });
+                    }
+                    else {
+                        layer.msg('删除失败！');
+                    }
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <div id="form1">
+            <div class="div-search layui-form layui-form-pane" action="" id="formSeach" style="height:100px;">
+                <div class="layui-form-item" pane style="height:37px;">
+                    <label class="layui-form-label">权限名称：</label>
+                    <div class="layui-inline left-input" style="width:150px;float:left;">
+                        <div class="layui-input-inline">
+                            <input type="text" name="PowerName" placeholder="请输入权限名称" autocomplete="off" class="layui-input left-input">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item" pane style="height:37px;">
+                    <label class="layui-form-label">Url：</label>
+                    <div class="layui-inline left-input" style="width:150px;float:left;">
+                        <div class="layui-input-inline">
+                            <input type="text" name="Url" placeholder="请输入权限Url" autocomplete="off" class="layui-input left-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="width:300px;height:300px;">
+                <div style="height:40px;margin-left:10px;">
+                    <span style="margin-right:40px;">是否启用:</span>
+                    <input type="radio" name="IsSelf" value="1" />启用<input type="radio" name="IsSelf" value="0" />禁用
+                </div>
+                <div style="margin-left:10px;">
+                    <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="Add()">
+                        保存
+                    </button>
+                </div>
+            </div>
+        </div>
+        @*<form id="form1">
+            <div>
+                权限名称:<input type="text" name="PowerName" />
+            </div>
+            <div>
+                Url:<input type="text" name="Url" />
+            </div>
+            <div>
+                是否启用:<input type="radio" name="IsSelf" value="1" />启用<input type="radio" name="IsSelf" value="0" />禁用
+            </div>
+            <div>
+                <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="Add()">
+                    保存
+                </button>
+            </div>
+        </form>*@
+    </div>
+    <script src="~/polyfill.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/kitadmin.js"></script>
+    <script src="~/mockjs-config.js"></script>
+    <script src="~/DateControl/WdatePicker.js"></script>
+    <script src="~/Content/echarts.min.js"></script>
+</body>
+</html>

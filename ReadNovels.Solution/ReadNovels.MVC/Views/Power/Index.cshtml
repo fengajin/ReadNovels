@@ -1,0 +1,168 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <link href="~/css/layui.css" rel="stylesheet" id="layui" />
+    <link href="~/css/theme/default.css" rel="stylesheet" id="theme" />
+    <link href="~/css/kitadmin.css" rel="stylesheet" id="kitadmin" />
+    <script src="~/Scripts/jquery-3.1.1.js"></script>
+    <script src="~/layui.all.js"></script>
+    <script src="~/layui.js"></script>
+    <link href="~/css/layui.css" rel="stylesheet" media="all" />
+    <script>
+        //当前页
+        var currentpage = 1;
+        //总页数
+        var totalpage = 0;
+        $(function () {
+            GetPower();
+        })
+        function GetPower() {
+            $.ajax({
+                url: "http://172.25.53.30:8050/power/getPowers",
+                type: "get",
+                data: {
+                    page: currentpage,
+                    PowerName: $("input[name=PowerName]").val()
+                },
+                success: function (data) {
+                    currentpage = data.Currentpage;
+                    totalpage = data.Totalpage;
+                    $("#Currentpage").text(data.Currentpage + "/" + data.Totalpage);
+                    $("#tab tr").not(":first").remove();
+                    $(data.Data).each(function (index, data) {
+                        var str = "<tr>";
+                        str += "<td>" + data.Id + "</td>";
+                        str += "<td>" + data.PowerName + "</td>";
+                        str += "<td>" + data.Url + "</td>";
+                        str += "<td>" + data.CreateTime + "</td>";
+                        str += "<td>" + data.ModifyTime + "</td>";
+                        str += "<td>" + (data.IsSelf == 0 ? "禁用" : "启用") + "</td>";
+                        str += "<td><a onclick='Delete(" + data.Id + ")'>删除</a>|<a href='/Power/Update?Id=" + data.Id + "'>修改</a></td>";
+                        str += "</tr>";
+                        $("#tab").append(str);
+                    })
+                }
+            })
+        }
+        function Delete(Id) {
+            layer.confirm('确定删除吗?', { icon: 3, title: '提示' }, function (index) {
+                //do something
+                $.ajax({
+                    url: "http://172.25.53.30:8050/power/delete",
+                    type: "get",
+                    data: {
+                        Id: Id
+                    },
+                    success: function (data) {
+                        if (data > 0) {
+                            layer.msg('删除成功！', { icon: 1 });
+                            GetPower();
+                        }
+                        else {
+                            layer.msg('删除失败！');
+                        }
+                    }
+                })
+                layer.close(index);
+            });
+        }
+        
+        function btnFirst() {
+            currentpage = 1;
+            GetPower();
+        }
+        //上一页
+        function btnPrev() {
+            if (currentpage - 1 <= 0) {
+                layer.msg('已是第一页！');
+                return;
+            }
+            currentpage--;
+            GetPower();
+        }
+        //下一页
+        function btnNext() {
+            if (currentpage + 1 > totalpage) {
+                layer.msg('已是最后一页！');
+                return;
+            }
+            currentpage++;
+            GetPower();
+        }
+        //最后一页
+        function btnLast() {
+            currentpage = totalpage;
+            GetPower();
+        }
+        //搜索
+        function btnSearch() {
+            GetPower();
+        }
+    </script>
+</head>
+<body>
+    <div>
+
+        <span class="layui-inline">
+            <label class="layui-form-label">
+                权限名:
+            </label>
+
+            <span class="layui-input-inline">
+                <input class="layui-input" type="text" placeholder="请输入权限名" autocomplete="off" name="PowerName" />
+            </span>
+        </span>
+        <span>
+            <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="btnSearch()">
+                搜索
+            </button>
+        </span>
+        <span>
+            <button class="layui-btn layuiadmin-btn-list" data-type="add" onclick="location.href='/Power/AddPower'">
+                添加权限
+            </button>
+        </span>
+    </div>
+    <div>
+        <table id="tab" class="layui-table" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+                <td style="width:100px">权限ID</td>
+                <td style="width:100px">权限名称</td>
+                <td style="width:100px">权限URL</td>
+                <td style="width:100px">创建时间</td>
+                <td style="width:100px">修改时间</td>
+                <td style="width:100px">是否启用</td>
+                <td style="width:100px">操作</td>
+            </tr>
+        </table>
+    </div>
+    <div style="float:right;margin-right:20px;">
+        <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnFirst()">
+            首页
+        </button>
+        <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnPrev()">
+            上一页
+        </button>
+        当前第<span id="Currentpage" style="color:blue"></span>页
+        <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnNext()">
+            下一页
+        </button>
+        <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formDemo" data-type="add" onclick="btnLast()">
+            尾页
+        </button>
+    </div>
+    <script src="~/polyfill.min.js"></script>
+    <script src="~/layui.js"></script>
+    <script src="~/kitadmin.js"></script>
+    <script src="~/mockjs-config.js"></script>
+    <script src="~/Content/jquery-3.3.1.js"></script>
+</body>
+</html>
